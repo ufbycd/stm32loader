@@ -29,7 +29,6 @@ import sys, getopt
 import serial
 import time
 import glob
-import time
 import tempfile
 import os
 import subprocess
@@ -216,24 +215,24 @@ class CommandInterface(object):
             self.sp.write(chr(lng)) # len really
             crc = 0xFF
             try:
-              datastr = ""
-              for c in data:
-                  crc = crc ^ c
-                  datastr = datastr+chr(c)
-              datastr = datastr + chr(crc)
-              self.sp.write(datastr)
-              self._wait_for_ack("0x31 programming failed")
-              mdebug(10, "    Write memory done")
+                datastr = ""
+                for c in data:
+                    crc = crc ^ c
+                    datastr = datastr+chr(c)
+                datastr = datastr + chr(crc)
+                self.sp.write(datastr)
+                self._wait_for_ack("0x31 programming failed")
+                mdebug(10, "    Write memory done")
             except:
-              mdebug(5, "    WRITE FAIL - try and recover")
-              for c in data:
-                self.sp.write(chr(255))
-              mdebug(5, "    WRITE FAIL - wait")
-              stop = time.time() + 1
-              while time.time() < stop:
-                if self.sp.inWaiting()>0: self.sp.read(self.sp.inWaiting())
-              mdebug(5, "    WRITE FAIL - retry")
-              self.cmdWriteMemory(addr, data)
+                mdebug(5, "    WRITE FAIL - try and recover")
+                for c in data:
+                    self.sp.write(chr(255))
+                mdebug(5, "    WRITE FAIL - wait")
+                stop = time.time() + 1
+                while time.time() < stop:
+                    if self.sp.inWaiting()>0: self.sp.read(self.sp.inWaiting())
+                mdebug(5, "    WRITE FAIL - retry")
+                self.cmdWriteMemory(addr, data)
         else:
             raise CmdException("Write memory (0x31) failed")
 
@@ -378,34 +377,34 @@ class CommandInterface(object):
         reg = [10, 60, 29, 0]
 #        self.cmdWriteMemory(RCC_CFGR, reg)
         if self.cmdGeneric(0x31):
-          self.sp.write(self._encode_addr(RCC_CFGR))
-          self._wait_for_ack("0x31 address failed")
-          self.sp.write(chr(3)) # len really
-          self.sp.write(chr(reg[0]))
-          self.sp.write(chr(reg[1]))
-          self.sp.write(chr(reg[2]))
-          self.sp.write(chr(reg[3]))            
-          crc = 3^reg[0]^reg[1]^reg[2]^reg[3];
-          self.sp.write(chr(crc))
-          self._wait_for_ack("0x31 programming failed")
-          mdebug(10, "    PCLK write memory done")
+            self.sp.write(self._encode_addr(RCC_CFGR))
+            self._wait_for_ack("0x31 address failed")
+            self.sp.write(chr(3)) # len really
+            self.sp.write(chr(reg[0]))
+            self.sp.write(chr(reg[1]))
+            self.sp.write(chr(reg[2]))
+            self.sp.write(chr(reg[3]))            
+            crc = 3^reg[0]^reg[1]^reg[2]^reg[3];
+            self.sp.write(chr(crc))
+            self._wait_for_ack("0x31 programming failed")
+            mdebug(10, "    PCLK write memory done")
 
     def resetDevice(self):
         AIRCR = 0xE000ED0C
         mdebug(5, "Writing to Reset Register")
         reg = [0x04,0x00,0xFA,0x05]
         if self.cmdGeneric(0x31):
-          self.sp.write(self._encode_addr(AIRCR))
-          self._wait_for_ack("0x31 address failed")
-          self.sp.write(chr(3)) # len really
-          self.sp.write(chr(reg[0]))
-          self.sp.write(chr(reg[1]))
-          self.sp.write(chr(reg[2]))
-          self.sp.write(chr(reg[3]))            
-          crc = 3^reg[0]^reg[1]^reg[2]^reg[3];
-          self.sp.write(chr(crc))
-          # don't wait for ack - device will have rebooted
-          mdebug(10, "    reset done")
+            self.sp.write(self._encode_addr(AIRCR))
+            self._wait_for_ack("0x31 address failed")
+            self.sp.write(chr(3)) # len really
+            self.sp.write(chr(reg[0]))
+            self.sp.write(chr(reg[1]))
+            self.sp.write(chr(reg[2]))
+            self.sp.write(chr(reg[3]))            
+            crc = 3^reg[0]^reg[1]^reg[2]^reg[3];
+            self.sp.write(chr(crc))
+            # don't wait for ack - device will have rebooted
+            mdebug(10, "    reset done")
 
 
 def usage():
